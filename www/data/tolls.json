@@ -1,0 +1,276 @@
+{
+ "updatedAt": "2026-10-26T19:40:00+03:00",
+ "source": "KGM 2026 geçiş ücreti tarifeleri",
+ "url": "https://www.kgm.gov.tr/Sayfalar/KGM/SiteTr/Otoyollar/UcretlerYeni.aspx",
+ "items": [
+  {
+   "id": "fsm_15temmuz",
+   "name": "FSM / 15 Temmuz Şehitler Köprüsü",
+   "c": [
+    59,
+    null,
+    null,
+    null,
+    null,
+    25
+   ],
+   "dir": "yalnız Avrupa→Asya yönü"
+  },
+  {
+   "id": "osmangazi",
+   "name": "Osmangazi Köprüsü (yalnız köprü)",
+   "c": [
+    1170,
+    1870,
+    2225,
+    2950,
+    3720,
+    820
+   ]
+  },
+  {
+   "id": "gebze_izmir_full",
+   "name": "İstanbul-İzmir Otoyolu (Osmangazi dahil, tam)",
+   "c": [
+    2525,
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "stops": "Osmangazi köprüsü 1170, Bursa ~1500, Balıkesir ~1900, İzmir 2525 (ara değerler yaklaşık)",
+   "km": 426
+  },
+  {
+   "id": "yss",
+   "name": "Yavuz Sultan Selim Köprüsü",
+   "c": [
+    110,
+    145,
+    270,
+    690,
+    860,
+    75
+   ]
+  },
+  {
+   "id": "kuzey_cevre_yss",
+   "name": "Kuzey Çevre Otoyolu Fenertepe–Kurnaköy (YSS dahil)",
+   "c": [
+    600,
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "stops": "Işıklar 105, Odayeri 120, Uskumruköy 225, Riva 405, Reşadiye 540, Mecidiye 600, Kurnaköy 600",
+   "km": 95
+  },
+  {
+   "id": "kmo_avrupa",
+   "name": "Kuzey Marmara Avrupa Kınalı–Odayeri",
+   "c": [
+    260,
+    410,
+    null,
+    null,
+    null,
+    null
+   ],
+   "stops": "Silivri 65, Çatalca 165, Nakkaş 195, Yassıören 225, Tayakadın 260",
+   "km": 139
+  },
+  {
+   "id": "kmo_anadolu",
+   "name": "Kuzey Marmara Anadolu Kurtköy–Akyazı",
+   "c": [
+    600,
+    935,
+    null,
+    null,
+    null,
+    null
+   ],
+   "stops": "İstanbulpark 65, Balçık 105, Mermerciler 120, Sevindikli 225, İzmit Kuzey 310, Akmeşe 410, Adapazarı 480, Karasu 490, Akyazı 600",
+   "km": 169
+  },
+  {
+   "id": "canakkale_1915",
+   "name": "1915 Çanakkale Köprüsü (yalnız köprü)",
+   "c": [
+    1170,
+    1465,
+    2635,
+    2925,
+    5560,
+    295
+   ]
+  },
+  {
+   "id": "malkara_canakkale",
+   "name": "Malkara–Çanakkale Otoyolu (1915 Köprüsü dahil)",
+   "c": [
+    1480,
+    1960,
+    null,
+    null,
+    null,
+    null
+   ],
+   "km": 101
+  },
+  {
+   "id": "anadolu_otoyolu",
+   "name": "Anadolu Otoyolu Çamlıca–Akıncı (İstanbul–Ankara)",
+   "c": [
+    338,
+    390,
+    null,
+    null,
+    null,
+    null
+   ],
+   "stops": "Gebze 49, İzmit 73, Sapanca/Adapazarı 89, Düzce 134, Kaynaşlı 168, Bolu 289, Gerede 325, Akıncı 338",
+   "km": 375
+  },
+  {
+   "id": "avrupa_otoyolu",
+   "name": "Avrupa Otoyolu Mahmutbey–Edirne",
+   "c": [
+    168,
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "est": true,
+   "km": 229
+  },
+  {
+   "id": "ankara_nigde",
+   "name": "Ankara–Niğde Otoyolu",
+   "c": [
+    925,
+    1050,
+    null,
+    null,
+    null,
+    null
+   ],
+   "stops": "Emirler 240, Kulu-Kırıkkale 275, Acıkuyu 395, Kırşehir 670, Derinkuyu 840, Niğde 925",
+   "km": 330
+  },
+  {
+   "id": "nigde_mersin",
+   "name": "Çukurova Otoyolu Niğde–Mersin/Adana",
+   "c": [
+    197,
+    237,
+    null,
+    null,
+    null,
+    null
+   ],
+   "stops": "Pozantı 136, Adana Batı 193, Tarsus 184, Mersin 197",
+   "km": 200
+  },
+  {
+   "id": "adana_gaziantep",
+   "name": "Çukurova Otoyolu Adana–Gaziantep",
+   "c": [
+    102,
+    120,
+    null,
+    null,
+    null,
+    null
+   ],
+   "stops": "Ceyhan 36, Osmaniye 65, İskenderun 65, Nurdağı 73, Gaziantep 102",
+   "km": 220
+  },
+  {
+   "id": "gaziantep_sanliurfa",
+   "name": "Çukurova Otoyolu Gaziantep–Şanlıurfa",
+   "c": [
+    102,
+    120,
+    null,
+    null,
+    null,
+    null
+   ],
+   "km": 145
+  },
+  {
+   "id": "izmir_aydin",
+   "name": "İzmir–Aydın Otoyolu",
+   "c": [
+    73,
+    82,
+    null,
+    null,
+    null,
+    null
+   ],
+   "stops": "Havalimanı 40, Torbalı 49, Belevi 53, Aydın 73",
+   "km": 100
+  },
+  {
+   "id": "aydin_denizli",
+   "name": "Aydın–Denizli Otoyolu",
+   "c": [
+    590,
+    745,
+    null,
+    null,
+    null,
+    null
+   ],
+   "stops": "Köşk 90, Nazilli 195, Kuyucak 265, Buharkent 355, Sarayköy 440, Pamukkale 525, Denizli 590",
+   "km": 163
+  },
+  {
+   "id": "izmir_cesme",
+   "name": "İzmir–Çeşme Otoyolu",
+   "c": [
+    53,
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "est": true,
+   "km": 80
+  },
+  {
+   "id": "menemen_candarli",
+   "name": "Menemen–Aliağa–Çandarlı Otoyolu",
+   "c": [
+    240,
+    400,
+    null,
+    null,
+    null,
+    null
+   ],
+   "km": 76
+  },
+  {
+   "id": "cesmeli_kizkalesi",
+   "name": "Çeşmeli–Kızkalesi Otoyolu",
+   "c": [
+    220,
+    355,
+    null,
+    null,
+    null,
+    null
+   ],
+   "km": 40
+  }
+ ]
+}

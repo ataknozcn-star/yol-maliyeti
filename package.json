@@ -1,0 +1,18 @@
+{
+  "name": "yol-maliyeti",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Yol maliyeti hesaplayıcı: yakıt (il bazlı), otoyol-köprü ücretleri ve yol masrafları",
+  "scripts": {
+    "vendor": "node scripts/vendor.mjs",
+    "update-fuel": "node scripts/update-fuel.mjs"
+  },
+  "dependencies": {
+    "@capacitor/android": "6.2.0",
+    "@capacitor/core": "6.2.0",
+    "leaflet": "1.9.4"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "6.2.0"
+  }
+}

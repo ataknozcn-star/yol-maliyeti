@@ -1,0 +1,6 @@
+{
+  "appId": "com.ataknozcn.yolmaliyeti",
+  "appName": "Yol Maliyeti",
+  "webDir": "www",
+  "server": { "androidScheme": "https" }
+}

@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0a6b47">
+<title>Yol Maliyeti</title>
+<link rel="stylesheet" href="vendor/leaflet/leaflet.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="map" aria-label="Harita"></div>
+<div id="pickBanner" class="pick-banner" hidden><span id="pickText">Haritaya dokunun</span><button type="button" id="pickCancel">Vazgeç</button></div>
+
+<main class="sheet">
+  <section class="sign" aria-label="Güzergah">
+    <div class="sign-in">
+      <div class="stops">
+        <div class="stop" data-k="from">
+          <label for="from">Kalkış</label>
+          <div class="qrow">
+            <input type="search" id="from" autocomplete="off" enterkeyhint="search" placeholder="Adres, mahalle, otogar…">
+            <button type="button" class="mini" data-act="gps" title="Konumumu kullan">Konumum</button>
+            <button type="button" class="mini" data-act="map" data-k="from" title="Haritadan seç">Harita</button>
+          </div>
+          <div class="sugg" id="from-sugg"></div>
+        </div>
+        <div class="stop" data-k="via">
+          <label for="via">Ara durak (isteğe bağlı)</label>
+          <div class="qrow">
+            <input type="search" id="via" autocomplete="off" enterkeyhint="search" placeholder="Örn. Bursa Terminal">
+            <button type="button" class="mini" data-act="map" data-k="via">Harita</button>
+          </div>
+          <div class="sugg" id="via-sugg"></div>
+        </div>
+        <div class="stop" data-k="to">
+          <label for="to">Varış</label>
+          <div class="qrow">
+            <input type="search" id="to" autocomplete="off" enterkeyhint="search" placeholder="Adres, mahalle, otogar…">
+            <button type="button" class="mini" data-act="map" data-k="to">Harita</button>
+          </div>
+          <div class="sugg" id="to-sugg"></div>
+        </div>
+      </div>
+      <div class="chips">
+        <label class="chip"><input type="checkbox" id="round"> Gidiş-dönüş</label>
+        <label class="chip"><input type="checkbox" id="avoid"> Ücretli yollardan kaçın</label>
+      </div>
+      <button class="btn btn-sign" id="go" type="button">Güzergahı hesapla</button>
+      <div class="status" id="status" role="status"></div>
+    </div>
+  </section>
+
+  <section class="panel result" aria-label="Sonuç">
+    <div>
+      <h2 id="routeTitle">Güzergah seçin</h2>
+      <div class="facts" id="routeFacts"></div>
+    </div>
+    <div class="total">
+      <div class="big num" id="tot">—</div>
+      <div class="sub" id="totSub"></div>
+    </div>
+    <div class="bar" id="bar" aria-hidden="true"></div>
+    <div class="legend" id="legend"></div>
+
+    <div>
+      <h3>Yakıt planı</h3>
+      <div class="list" id="fuelList"></div>
+      <p class="note" id="fuelNote"></p>
+    </div>
+    <div>
+      <h3>Otoyol ve köprüler</h3>
+      <div class="list" id="tollList"></div>
+      <div class="addtoll">
+        <select id="addSel" aria-label="Geçiş ekle"></select>
+        <input type="number" id="addAmt" placeholder="TL" inputmode="numeric" aria-label="Tutar">
+        <button class="btn btn-ghost" id="addBtn" type="button">Ekle</button>
+      </div>
+    </div>
+  </section>
+
+  <details class="panel" id="vehPanel">
+    <summary><h2>Araç</h2><span class="sumv" id="vehSum"></span></summary>
+    <div class="grid">
+      <label class="f"><span>Araç sınıfı (KGM)</span>
+        <select id="vclass">
+          <option value="0">1 · Otomobil</option>
+          <option value="1">2 · Minibüs, panelvan, kamyonet</option>
+          <option value="2">3 · Üç dingilli kamyon, otobüs</option>
+          <option value="3">4 · Dört-beş dingilli</option>
+          <option value="4">5 · Altı ve üzeri dingilli</option>
+          <option value="5">6 · Motosiklet</option>
+        </select>
+      </label>
+      <label class="f"><span>Yakıt</span>
+        <select id="ftype">
+          <option value="0">Benzin (hibrit dahil)</option>
+          <option value="1">Dizel</option>
+          <option value="2">LPG</option>
+          <option value="3">Elektrik</option>
+        </select>
+      </label>
+      <label class="f"><span id="consLbl">Tüketim (L/100 km)</span><input type="number" id="cons" step="0.1" min="0" inputmode="decimal"></label>
+      <label class="f" id="tankF"><span>Depo hacmi (L)</span><input type="number" id="tank" step="1" min="5" inputmode="numeric"></label>
+      <label class="f" id="resF"><span>Yedek seviye (%)</span><input type="number" id="reserve" step="1" min="0" max="60" inputmode="numeric"><small>Depo buna inmeden ilk ilde dolum</small></label>
+      <label class="f" id="kwhF" hidden><span>Şarj fiyatı (TL/kWh)</span><input type="number" id="kwh" step="0.1" min="0" inputmode="decimal"></label>
+    </div>
+  </details>
+
+  <details class="panel" id="extPanel">
+    <summary><h2>Ek masraflar</h2><span class="sumv" id="extSum"></span></summary>
+    <div class="grid">
+      <label class="f"><span>Kişi sayısı</span><input type="number" id="pax" min="1" step="1" inputmode="numeric"></label>
+      <label class="f"><span>Aşınma, bakım (TL/km)</span><input type="number" id="wear" min="0" step="0.1" inputmode="decimal"></label>
+      <label class="f"><span>Yemek, mola (TL)</span><input type="number" id="food" min="0" step="50" inputmode="numeric"></label>
+      <label class="f"><span>Otopark (TL)</span><input type="number" id="park" min="0" step="50" inputmode="numeric"></label>
+      <label class="f"><span>Konaklama (TL)</span><input type="number" id="hotel" min="0" step="100" inputmode="numeric"></label>
+      <label class="f"><span>Diğer (TL)</span><input type="number" id="other" min="0" step="50" inputmode="numeric"></label>
+    </div>
+  </details>
+
+  <footer class="foot">
+    <div id="freshness">Fiyatlar yükleniyor…</div>
+    <button type="button" class="btn btn-ghost" id="refresh">Fiyatları yenile</button>
+    <div>Harita ve yol: © OpenStreetMap katkıcıları, OSRM, Photon. Yakıt: Petrol Ofisi il fiyatları. Ücretler: KGM tarifeleri. Kısmi otoyol kullanımı ve bazı sınıflar tahminidir.</div>
+  </footer>
+</main>
+
+<script src="vendor/leaflet/leaflet.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
