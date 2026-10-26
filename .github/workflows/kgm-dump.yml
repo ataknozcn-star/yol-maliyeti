@@ -1,0 +1,33 @@
+name: KGM tarifelerini indir
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  dump:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: poppler
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq poppler-utils
+      - name: PDF indir ve metne çevir
+        run: |
+          mkdir -p kgm/pdf kgm/txt
+          B=https://www.kgm.gov.tr/SiteCollectionDocuments/KGMdocuments/Otoyollar/OtoyolKopruUcret/2026Gecis_Ucret
+          for f in 1-15Temmuz-FSM 2-Osmangazi 3-YSSKoprusu 4-1915Canakkale 5-AnadoluOtoyoluCamlica-Akinci 6-Izmir-Cesme 7-Izmir-Aydin 8-CukurovaOtoyoluAdana-Gaziantep 9-CukurovaOtoyoluGaziantep-Sanliurfa 10-CukurovaOtoyoluNigde-Mersin-Adana 11-AvrupaOtoyoluMahmutbey-Edirne 12-Gebze-Orhangazi-Izmir 13-YSSKuzeyCevreYolu 14-KMOAvrupaKinali-Odayeri 15-KMOAnadoluKurtkoy-Akyazi 16-Menemen-Aliaga-Candarli 17-Ankara-Nigde 18-Malkara-Canakkale 19-Aydin-Denizli 20-Cesmeli-KizkalesiTR; do
+            curl -sSL -A "Mozilla/5.0" --retry 3 -o kgm/pdf/$f.pdf "$B/$f.pdf" || echo "FAIL $f"
+            pdftotext -layout kgm/pdf/$f.pdf kgm/txt/$f.txt || echo "PARSE FAIL $f"
+            pdftotext -raw kgm/pdf/$f.pdf kgm/txt/$f.raw.txt || true
+          done
+          ls -la kgm/txt
+      - name: Ayrı dala kaydet
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b kgm-raw
+          git add kgm/txt
+          git commit -m "KGM tarife metinleri"
+          git push -f origin kgm-raw
