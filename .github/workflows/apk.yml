@@ -3,7 +3,7 @@ name: APK derle
 on:
   push:
     branches: [main]
-    paths-ignore: ["data/**", "README.md"]
+    paths-ignore: ["data/fuel.json", "README.md", ".github/workflows/test-tolls.yml", ".github/workflows/kgm-dump.yml", ".github/workflows/osm-dump.yml", "scripts/test-tolls.mjs"]
   workflow_dispatch:
 
 permissions:

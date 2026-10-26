@@ -19,7 +19,11 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+<<<<<<< HEAD
           cp test/tolls-result.json /tmp/r.json
+=======
+          cp test/tolls-result.json /tmp/r.json && rm -rf test
+>>>>>>> toll-engine
           git fetch origin kgm-raw
           git checkout kgm-raw
           mkdir -p test && cp /tmp/r.json test/tolls-result.json
