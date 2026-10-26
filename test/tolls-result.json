@@ -81,15 +81,13 @@
   ],
   "km": 215,
   "go": [
-   "Avrupa Otoyolu (Mahmutbey–Edirne) [Hadımköy → Havsa] = 134",
-   "Kuzey Marmara Avrupa (Kınalı–Odayeri) [Çatalca → Kınalı] = 165"
+   "Avrupa Otoyolu (Mahmutbey–Edirne) [Hadımköy → Havsa] = 134"
   ],
-  "goTotal": 299,
+  "goTotal": 134,
   "back": [
-   "Avrupa Otoyolu (Mahmutbey–Edirne) [Havsa → Hadımköy] = 134",
-   "Kuzey Marmara Avrupa (Kınalı–Odayeri) [Kınalı → Çatalca] = 165"
+   "Avrupa Otoyolu (Mahmutbey–Edirne) [Havsa → Hadımköy] = 134"
   ],
-  "backTotal": 299,
+  "backTotal": 134,
   "note": ""
  },
  {
