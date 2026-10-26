@@ -261,7 +261,7 @@ function detectTolls(R,coords,cum,totKm){
     const refs=SYS_REF[sid]||[];
     let zones=[].concat(...refs.map(r=>IV.ref[r]||[]));
     const byRef=zones.length>0;
-    if(!byRef)zones=hasTollTags?iv:mw;
+    if(!byRef){ if(refs.length)continue; zones=hasTollTags?iv:mw; }  /* yol bu otoyolu hiç kullanmıyor */
     if(!zones.length)continue;
     const hits=[];
     (sys.pos||[]).forEach((p,gi)=>{
