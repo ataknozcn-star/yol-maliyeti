@@ -1,0 +1,41 @@
+name: Gişe konumlarını indir
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  dump:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: kgm-raw
+      - name: Overpass ve OSRM
+        run: |
+          mkdir -p osm
+          Q='[out:json][timeout:180];area["ISO3166-1"="TR"][admin_level=2]->.a;(node(area.a)["barrier"="toll_booth"];way(area.a)["barrier"="toll_booth"];node(area.a)["highway"="toll_gantry"];node(area.a)["highway"="motorway_junction"];);out center tags;'
+          for u in https://overpass-api.de/api/interpreter https://overpass.kumi.systems/api/interpreter; do
+            curl -sS --retry 2 -m 300 -A "yol-maliyeti" --data-urlencode "data=$Q" "$u" -o osm/tr.json && python3 -c "import json;d=json.load(open('osm/tr.json'));print(len(d['elements']))" && break
+          done
+          # örnek güzergah: Osmangazi kuzeyi -> Balıkesir Batı
+          curl -sS -m 60 "https://router.project-osrm.org/route/v1/driving/29.47,40.80;27.80,39.62?overview=false&steps=true" -o osm/osrm-test.json || true
+          python3 - <<'PY'
+          import json
+          d=json.load(open('osm/tr.json'))
+          out=[]
+          for e in d['elements']:
+              t=e.get('tags',{}); lat=e.get('lat') or e.get('center',{}).get('lat'); lon=e.get('lon') or e.get('center',{}).get('lon')
+              out.append({'k':t.get('barrier') or t.get('highway'),'name':t.get('name',''),'ref':t.get('ref',''),'lat':lat,'lon':lon,'op':t.get('operator','')})
+          json.dump(out,open('osm/points.json','w'),ensure_ascii=False)
+          print(len(out))
+          PY
+      - name: Kaydet
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add osm/points.json osm/osrm-test.json
+          git commit -m "OSM gişe ve kavşak noktaları"
+          git push origin kgm-raw
