@@ -214,66 +214,88 @@ function analyse(R,pts){
   const endIl=pts[pts.length-1].il||nearestIl(coords[coords.length-1][0],coords[coords.length-1][1]);
   if(way[way.length-1].il!==endIl)way.push({il:endIl,km:Math.max(way[way.length-1].km,Math.round(totKm-5))});
   way.push({il:endIl,km:totKm});
-  /* köprüler */
-  const tolls=[],back=[];const crossed={};
-  for(const b of BRIDGES){
-    let bi=-1,bd=1e9;for(let i=0;i<coords.length;i++){const d=hav(coords[i][0],coords[i][1],b.lat,b.lon);if(d<bd){bd=d;bi=i;}}
-    if(bd>0.6)continue;
-    crossed[b.id]=true;
-    const a=coords[Math.max(0,bi-15)],c=coords[Math.min(coords.length-1,bi+15)];
-    const east=c[1]>a[1];
-    if(b.eastOnly){ if(east)tolls.push({id:b.id,label:b.name+" (Avrupa→Asya)",frac:1,on:true}); else back.push({id:b.id,label:b.name+" (Avrupa→Asya)",frac:1,on:true}); }
-    else{tolls.push({id:b.id,label:b.name,frac:1,on:true});back.push({id:b.id,label:b.name,frac:1,on:true});}
-  }
-  /* ücretli otoyol adımları: OSRM 'toll' sınıfı + yol numarası */
-  const km={};
-  (R.legs||[]).forEach(leg=>(leg.steps||[]).forEach(s=>{
-    const isToll=(s.intersections||[]).some(x=>(x.classes||[]).includes("toll"));
-    if(!isToll||!s.distance)return;
-    const ref=String(s.ref||"")+" "+String(s.name||"");
-    const m=ref.match(/O[-\s]?(\d{1,2})\b/i);const loc=s.maneuver&&s.maneuver.location||[0,0];
-    const id=refToItem(m?+m[1]:null,loc[1],loc[0]);
-    km[id]=(km[id]||0)+s.distance/1000;
-  }));
-  for(const [id,k] of Object.entries(km)){
-    if(k<1)continue;
-    if(id==="other"){const t={id:"other",label:"Diğer ücretli yol",amount1:Math.round(k*PER_KM_OTHER),frac:1,on:true,km:Math.round(k)};tolls.push(t);back.push({...t});continue;}
-    const it=tollItem(id);const full=it&&it.km?it.km:k;let frac=Math.min(1,k/full);
-    /* köprü dahil kalemlerde köprü ayrıca eklendiyse köprüyü çıkarma: köprü + otoyol payı olarak hesapla */
-    if(id==="gebze_izmir_full"&&crossed.osmangazi){replaceBridge(tolls,"osmangazi",id,frac);replaceBridge(back,"osmangazi",id,frac);continue;}
-    if(id==="malkara_canakkale"&&crossed.canakkale_1915){replaceBridge(tolls,"canakkale_1915",id,frac);replaceBridge(back,"canakkale_1915",id,frac);continue;}
-    if(id==="kuzey_cevre_yss"&&crossed.yss){replaceBridge(tolls,"yss",id,frac);replaceBridge(back,"yss",id,frac);continue;}
-    if(frac>0.85)frac=1;
-    const t={id,label:(it?it.name:id),frac,on:true,km:Math.round(k)};tolls.push(t);back.push({...t});
-  }
+  const T=detectTolls(R,coords,cum,totKm);
   const p0=pts[0],p1=pts[pts.length-1];
   return {title:`${p0.label} → ${p1.label}`,km:Math.round(totKm),minutes:Math.round(R.duration/60),geo:coords.filter((_,i)=>i%Math.max(1,Math.floor(coords.length/1500))===0||i===coords.length-1),
-    waypoints:way,tolls,tollsBack:back,note:""};
+    waypoints:way,tolls:T.go,tollsBack:T.back,note:T.note};
 }
-function replaceBridge(list,bridgeId,itemId,frac){
-  const i=list.findIndex(t=>t.id===bridgeId);
-  const it=tollItem(itemId),br=tollItem(bridgeId);
-  const t={id:itemId,label:(it?it.name:itemId),frac:1,on:true,combo:{bridge:bridgeId,frac:Math.min(1,frac>0.85?1:frac)}};
-  if(i>=0)list.splice(i,1,t);else list.push(t);
+
+/* --- ücretli yol tespiti: KGM giriş-çıkış gişe tabloları --- */
+function fastKm(a,b,c,d){const x=(d-b)*Math.cos((a+c)*Math.PI/360),y=c-a;return Math.sqrt(x*x+y*y)*111.2;}
+function nearestOnRoute(coords,cum,lat,lon,bbox){
+  let bd=1e9,bk=0;
+  for(let i=0;i<coords.length;i++){const p=coords[i];if(Math.abs(p[0]-lat)>0.05||Math.abs(p[1]-lon)>0.07)continue;const d=fastKm(p[0],p[1],lat,lon);if(d<bd){bd=d;bk=cum[i];}}
+  return {d:bd,km:bk};
 }
-function refToItem(n,lat,lon){
-  switch(n){
-    case 3:return "avrupa_otoyolu";
-    case 4:return "anadolu_otoyolu";
-    case 5:return "gebze_izmir_full";
-    case 6:return "malkara_canakkale";
-    case 7:return lon<28.85?"kmo_avrupa":(lon<29.35?"kuzey_cevre_yss":"kmo_anadolu");
-    case 21:return lat>38.0?"ankara_nigde":"nigde_mersin";
-    case 51:return "nigde_mersin";
-    case 52:case 53:return "adana_gaziantep";
-    case 54:return "gaziantep_sanliurfa";
-    case 31:return lon<27.75?"izmir_aydin":"aydin_denizli";
-    case 32:return "izmir_cesme";
-    case 33:return "menemen_candarli";
-    default:
-      if(lat>36.3&&lat<36.7&&lon>33.6&&lon<34.4)return "cesmeli_kizkalesi";
-      return "other";
+function tollIntervals(R){
+  const toll=[],mw=[];let pos=0;
+  const add=(arr,a,b)=>{const l=arr[arr.length-1];if(l&&a-l[1]<1.5)l[1]=b;else arr.push([a,b]);};
+  (R.legs||[]).forEach(leg=>(leg.steps||[]).forEach(s=>{
+    const d=(s.distance||0)/1000;
+    const cls=[].concat(...(s.intersections||[]).map(x=>x.classes||[]));
+    const isToll=cls.includes("toll");
+    const isMw=isToll||cls.includes("motorway")||/^O-?\d/i.test(String(s.ref||""))||/otoyol/i.test(String(s.name||""));
+    if(d>0){if(isToll)add(toll,pos,pos+d);if(isMw)add(mw,pos,pos+d);}
+    pos+=d;
+  }));
+  return {toll,mw};
+}
+function inIntervals(iv,km,m){return iv.some(([a,b])=>km>=a-m&&km<=b+m);}
+function sysPrice(sys,a,b,c){
+  const M=sys.m&&sys.m[String(c+1)];if(!M)return null;
+  let v=M[a]&&M[a][b];if(v==null)v=M[b]&&M[b][a];
+  return v==null?null:v;
+}
+function detectTolls(R,coords,cum,totKm){
+  const IV=tollIntervals(R),iv=IV.toll,hasTollTags=iv.length>0,mw=IV.mw;
+  const lats=coords.map(p=>p[0]),lons=coords.map(p=>p[1]);
+  const bb=[Math.min(...lats)-0.05,Math.max(...lats)+0.05,Math.min(...lons)-0.07,Math.max(...lons)+0.07];
+  const go=[],back=[],covered=[];
+  const systems=(PRICES.tolls&&PRICES.tolls.systems)||{};
+  const bridgeIncl={go:{},back:{}};
+  for(const [sid,sys] of Object.entries(systems)){
+    const hits=[];
+    (sys.pos||[]).forEach((p,gi)=>{
+      if(!p||p[0]<bb[0]||p[0]>bb[1]||p[1]<bb[2]||p[1]>bb[3])return;
+      const n=nearestOnRoute(coords,cum,p[0],p[1]);
+      const ok=hasTollTags?(n.d<1.2&&inIntervals(iv,n.km,1.5)):(n.d<0.6&&inIntervals(mw,n.km,1.5));
+      if(ok)hits.push({gi,km:n.km,d:n.d});
+    });
+    if(hits.length<2)continue;
+    hits.sort((x,y)=>x.km-y.km);
+    const first=hits[0].km,last=hits[hits.length-1].km;
+    if(last-first<2)continue;
+    /* aynı yerdeki gişeler (ör. Karacabey 1-2): en düşük ücretli eşleşme */
+    const A=hits.filter(h=>h.km-first<0.5).map(h=>h.gi),B=hits.filter(h=>last-h.km<0.5).map(h=>h.gi);
+    let best=null;
+    for(const a of A)for(const b of B){if(a===b)continue;const v=sysPrice(sys,a,b,0);if(v!=null&&(!best||v<best.v))best={a,b,v};}
+    if(!best)continue;
+    const span=Math.round(last-first);
+    const mk=(a,b)=>({sys:sid,a,b,label:`${sys.name}`,sub:`${sys.gates[a]} → ${sys.gates[b]}`,km:span,on:true});
+    go.push(mk(best.a,best.b));back.push(mk(best.b,best.a));
+    covered.push([first,last]);
+    if(sys.bridge){
+      if(sys.bridgeGate==null){bridgeIncl.go[sys.bridge]=true;bridgeIncl.back[sys.bridge]=true;}
+      else{ if(best.b===sys.bridgeGate)bridgeIncl.go[sys.bridge]=true; if(best.a===sys.bridgeGate)bridgeIncl.back[sys.bridge]=true; }
+    }
   }
+  /* köprüler */
+  for(const b of BRIDGES){
+    let bi=-1,bd=1e9;for(let i=0;i<coords.length;i++){const d=fastKm(coords[i][0],coords[i][1],b.lat,b.lon);if(d<bd){bd=d;bi=i;}}
+    if(bd>0.6)continue;
+    const a=coords[Math.max(0,bi-15)],c=coords[Math.min(coords.length-1,bi+15)],east=c[1]>a[1];
+    const item={id:b.id,label:b.name+(b.eastOnly?" (Avrupa→Asya)":""),frac:1,on:true};
+    covered.push([cum[bi]-2,cum[bi]+2]);
+    if(b.eastOnly){ if(east)go.unshift(item);else back.unshift({...item}); continue; }
+    if(!bridgeIncl.go[b.id])go.unshift(item);
+    if(!bridgeIncl.back[b.id])back.unshift({...item});
+  }
+  /* tablolarla karşılanmayan ücretli kısım */
+  let other=0;
+  for(const [a,b] of iv){let len=b-a;for(const [c,d] of covered){const o=Math.max(0,Math.min(b,d+1.5)-Math.max(a,c-1.5));len-=o;}if(len>3)other+=len;}
+  let note="";
+  if(other>3){const t={id:"other",label:"Diğer ücretli yol",amount1:Math.round(other*PER_KM_OTHER),frac:1,on:true,km:Math.round(other)};go.push(t);back.push({...t});note="Bir kısım ücretli yol KGM tablolarında eşleşmedi; o kısım tahmini.";}
+  return {go,back,note};
 }
 
 /* --- ücret ve yakıt hesabı --- */
@@ -282,6 +304,12 @@ function clsPrice(it){const c=it.c||[];let v=c[st.vclass],est=false;if(v==null){
 function tollAmount(t){
   if(t.custom!=null)return {amt:t.custom,est:false};
   if(t.id==="other")return {amt:(t.amount1||0)*CLS_F[st.vclass],est:true};
+  if(t.sys){
+    const sys=((PRICES.tolls&&PRICES.tolls.systems)||{})[t.sys];if(!sys)return {amt:0,est:true};
+    let v=sysPrice(sys,t.a,t.b,st.vclass),est=false;
+    if(v==null){v=(sysPrice(sys,t.a,t.b,0)||0)*CLS_F[st.vclass];est=true;}
+    return {amt:v,est};
+  }
   const it=tollItem(t.id);if(!it)return {amt:0,est:true};
   const a=clsPrice(it);
   if(t.combo){ /* köprü tam + otoyolun kalan kısmı oransal */
@@ -343,7 +371,7 @@ function render(){
   let tollCost=0,th="";
   groups.forEach(([g,list],gi)=>list.forEach((t,ti)=>{
     const a=tollAmount(t);if(t.on!==false)tollCost+=a.amt;
-    th+=`<label class="li"><input type="checkbox" data-g="${gi}" data-i="${ti}" ${t.on!==false?"checked":""}><div>${esc(t.label)}<div class="meta">${g}${t.km?` · ${t.km} km`:""} · ${a.est?'<span class="badge">tahmini</span>':'<span class="badge ok">KGM tarifesi</span>'}</div></div><div class="amt">${TL(a.amt)}</div></label>`;
+    th+=`<label class="li"><input type="checkbox" data-g="${gi}" data-i="${ti}" ${t.on!==false?"checked":""}><div>${esc(t.label)}<div class="meta">${t.sub?esc(t.sub)+" · ":""}${g}${t.km?` · ${t.km} km`:""} · ${a.est?'<span class="badge">tahmini</span>':'<span class="badge ok">KGM tarifesi</span>'}</div></div><div class="amt">${TL(a.amt)}</div></label>`;
   }));
   $("tollList").innerHTML=th||`<p class="note">Bu güzergahta ücretli geçiş bulunmadı.</p>`;
   const wear=km*st.wear,total=fuelCost+tollCost+wear+extras;

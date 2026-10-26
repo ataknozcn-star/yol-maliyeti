@@ -1,0 +1,28 @@
+name: Ücret testi
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: node scripts/test-tolls.mjs
+      - name: Sonucu ayrı dala yaz
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          cp test/tolls-result.json /tmp/r.json
+          git fetch origin kgm-raw
+          git checkout kgm-raw
+          mkdir -p test && cp /tmp/r.json test/tolls-result.json
+          git add test/tolls-result.json
+          git commit -m "Ücret testi sonucu" || true
+          git push origin kgm-raw
