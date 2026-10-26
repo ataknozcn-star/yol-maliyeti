@@ -58,17 +58,17 @@
   "name": "Kadıköy → Kızılay",
   "km": 433,
   "go": [
-   "Anadolu Otoyolu (Çamlıca–Akıncı) [Anadolu (Çamlıca) → Akıncı] = 338",
+   "Anadolu Otoyolu (Çamlıca–Akıncı) [Topağaç → Akıncı] = 237",
    "Kuzey Çevre Otoyolu (YSS dahil) [Mecidiye → Kurnaköy] = 45",
-   "Kuzey Marmara Anadolu (Kurtköy–Akyazı) [Kurnaköy 2 → Tem Akyazı] = 600"
+   "Kuzey Marmara Anadolu (Kurtköy–Akyazı) [Akmeşe → Tem Akyazı] = 225"
   ],
-  "goTotal": 983,
+  "goTotal": 507,
   "back": [
-   "Anadolu Otoyolu (Çamlıca–Akıncı) [Akıncı → Anadolu (Çamlıca)] = 338",
+   "Anadolu Otoyolu (Çamlıca–Akıncı) [Akıncı → Topağaç] = 237",
    "Kuzey Çevre Otoyolu (YSS dahil) [Kurnaköy → Mecidiye] = 45",
-   "Kuzey Marmara Anadolu (Kurtköy–Akyazı) [Tem Akyazı → Kurnaköy 2] = 600"
+   "Kuzey Marmara Anadolu (Kurtköy–Akyazı) [Tem Akyazı → Akmeşe] = 225"
   ],
-  "backTotal": 983,
+  "backTotal": 507,
   "note": ""
  },
  {
@@ -102,14 +102,10 @@
  {
   "name": "Aydın → Denizli",
   "km": 133,
-  "go": [
-   "Aydın–Denizli Otoyolu [Aydın Alın → Buharkent] = 355"
-  ],
-  "goTotal": 355,
-  "back": [
-   "Aydın–Denizli Otoyolu [Buharkent → Aydın Alın] = 355"
-  ],
-  "backTotal": 355,
+  "go": [],
+  "goTotal": 0,
+  "back": [],
+  "backTotal": 0,
   "note": ""
  },
  {
