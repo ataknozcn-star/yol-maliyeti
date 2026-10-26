@@ -228,18 +228,22 @@ function nearestOnRoute(coords,cum,lat,lon,bbox){
   return {d:bd,km:bk};
 }
 function tollIntervals(R){
-  const toll=[],mw=[];let pos=0;
+  const toll=[],mw=[],ref={};let pos=0;
   const add=(arr,a,b)=>{const l=arr[arr.length-1];if(l&&a-l[1]<1.5)l[1]=b;else arr.push([a,b]);};
   (R.legs||[]).forEach(leg=>(leg.steps||[]).forEach(s=>{
     const d=(s.distance||0)/1000;
     const cls=[].concat(...(s.intersections||[]).map(x=>x.classes||[]));
     const isToll=cls.includes("toll");
-    const isMw=isToll||cls.includes("motorway")||/^O-?\d/i.test(String(s.ref||""))||/otoyol/i.test(String(s.name||""));
-    if(d>0){if(isToll)add(toll,pos,pos+d);if(isMw)add(mw,pos,pos+d);}
+    const refs=[...String(s.ref||"").matchAll(/\bO-?\s?(\d{1,2})\b/gi)].map(m=>+m[1]);
+    const isMw=isToll||cls.includes("motorway")||refs.length>0||/otoyol/i.test(String(s.name||""));
+    if(d>0){if(isToll)add(toll,pos,pos+d);if(isMw)add(mw,pos,pos+d);refs.forEach(r=>add(ref[r]||(ref[r]=[]),pos,pos+d));}
     pos+=d;
   }));
-  return {toll,mw};
+  return {toll,mw,ref};
 }
+/* her KGM tablosunun yol numarası (OSM ref) */
+const SYS_REF={anadolu_otoyolu:[4],avrupa_otoyolu:[3],kmo_avrupa:[7],kuzey_cevre_yss:[7],kmo_anadolu:[7],gebze_bursa:[5],bursa_izmir:[5],malkara_canakkale:[6],
+  ankara_nigde:[21],nigde_mersin:[21,51],adana_gaziantep:[52,53],gaziantep_sanliurfa:[54],izmir_aydin:[31],aydin_denizli:[31],izmir_cesme:[32],menemen_candarli:[33]};
 function inIntervals(iv,km,m){return iv.some(([a,b])=>km>=a-m&&km<=b+m);}
 function sysPrice(sys,a,b,c){
   const M=sys.m&&sys.m[String(c+1)];if(!M)return null;
@@ -254,36 +258,37 @@ function detectTolls(R,coords,cum,totKm){
   const systems=(PRICES.tolls&&PRICES.tolls.systems)||{};
   const bridgeIncl={go:{},back:{}};
   for(const [sid,sys] of Object.entries(systems)){
+    const refs=SYS_REF[sid]||[];
+    let zones=[].concat(...refs.map(r=>IV.ref[r]||[]));
+    const byRef=zones.length>0;
+    if(!byRef)zones=hasTollTags?iv:mw;
+    if(!zones.length)continue;
     const hits=[];
     (sys.pos||[]).forEach((p,gi)=>{
       if(!p||p[0]<bb[0]||p[0]>bb[1]||p[1]<bb[2]||p[1]>bb[3])return;
       const n=nearestOnRoute(coords,cum,p[0],p[1]);
-      const ok=hasTollTags?(n.d<1.2&&inIntervals(iv,n.km,1.5)):(n.d<0.6&&inIntervals(mw,n.km,1.5));
-      if(ok)hits.push({gi,km:n.km,d:n.d});
+      if(n.d<(byRef?1.2:0.6))hits.push({gi,km:n.km,d:n.d});
     });
     if(hits.length<2)continue;
-    hits.sort((x,y)=>x.km-y.km);
-    /* gişeler sırayla geçilmeli: ardışık iki gişe tabloda en fazla 4 sıra uzakta olmalı, yoksa yol o otoyolda değildir */
-    const chains=[];let ch=[hits[0]];
-    for(let i=1;i<hits.length;i++){const p=hits[i-1],h=hits[i];const near=Math.abs(h.gi-p.gi)<=4||fastKm(sys.pos[h.gi][0],sys.pos[h.gi][1],sys.pos[p.gi][0],sys.pos[p.gi][1])<1;if(near)ch.push(h);else{chains.push(ch);ch=[h];}}
-    chains.push(ch);
-    const chain=chains.filter(c=>c.length>=2).sort((x,y)=>(y[y.length-1].km-y[0].km)-(x[x.length-1].km-x[0].km))[0];
-    if(!chain)continue;
-    const first=chain[0].km,last=chain[chain.length-1].km;
-    if(last-first<2)continue;
-    /* aynı yerdeki gişeler (ör. Karacabey 1-2): en düşük ücretli eşleşme */
-    const A=chain.filter(h=>h.km-first<0.5).map(h=>h.gi),B=chain.filter(h=>last-h.km<0.5).map(h=>h.gi);
-    let best=null;
-    for(const a of A)for(const b of B){if(a===b)continue;const v=sysPrice(sys,a,b,0);if(v!=null&&(!best||v<best.v))best={a,b,v};}
-    if(!best)continue;
-    const span=Math.round(last-first);
-    const mk=(a,b)=>({sys:sid,a,b,label:`${sys.name}`,sub:`${sys.gates[a]} → ${sys.gates[b]}`,km:span,on:true});
-    go.push(mk(best.a,best.b));back.push(mk(best.b,best.a));
-    covered.push([first,last]);
-    if(sys.bridge){
-      if(sys.bridgeGate==null){bridgeIncl.go[sys.bridge]=true;bridgeIncl.back[sys.bridge]=true;}
-      else{ if(best.b===sys.bridgeGate)bridgeIncl.go[sys.bridge]=true; if(best.a===sys.bridgeGate)bridgeIncl.back[sys.bridge]=true; }
-    }
+    /* her kesintisiz otoyol bölümünde ilk gişe giriş, son gişe çıkış */
+    zones.slice().sort((x,y)=>x[0]-y[0]).forEach(([za,zb])=>{
+      const H=hits.filter(h=>h.km>=za-1.5&&h.km<=zb+1.5).sort((x,y)=>x.km-y.km);
+      if(H.length<2)return;
+      const first=H[0].km,last=H[H.length-1].km;
+      if(last-first<2)return;
+      const A=H.filter(h=>h.km-first<0.5).map(h=>h.gi),B=H.filter(h=>last-h.km<0.5).map(h=>h.gi);
+      let best=null;
+      for(const a of A)for(const b of B){if(a===b)continue;const v=sysPrice(sys,a,b,0);if(v!=null&&(!best||v<best.v))best={a,b,v};}
+      if(!best)return;
+      const span=Math.round(last-first);
+      const mk=(a,b)=>({sys:sid,a,b,label:`${sys.name}`,sub:`${sys.gates[a]} → ${sys.gates[b]}`,km:span,on:true});
+      go.push(mk(best.a,best.b));back.push(mk(best.b,best.a));
+      covered.push([first,last]);
+      if(sys.bridge){
+        if(sys.bridgeGate==null){bridgeIncl.go[sys.bridge]=true;bridgeIncl.back[sys.bridge]=true;}
+        else{ if(best.b===sys.bridgeGate)bridgeIncl.go[sys.bridge]=true; if(best.a===sys.bridgeGate)bridgeIncl.back[sys.bridge]=true; }
+      }
+    });
   }
   /* köprüler */
   for(const b of BRIDGES){
