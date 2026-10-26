@@ -21,14 +21,14 @@
   "name": "Balıkesir → Kadıköy",
   "km": 274,
   "go": [
-   "Anadolu Otoyolu (Çamlıca–Akıncı) [Liman → Anadolu (Çamlıca)] = 49",
+   "Anadolu Otoyolu (Çamlıca–Akıncı) [Muallimköy → Anadolu (Çamlıca)] = 49",
    "İstanbul–İzmir Otoyolu (Gebze–Bursa kesimi) [Bursa Kuzey → Osmangazi Köprüsü] = 1540",
    "İstanbul–İzmir Otoyolu (Bursa–İzmir kesimi) [Balıkesir Kuzey → Bursa Batı] = 490"
   ],
   "goTotal": 2079,
   "back": [
    "Osmangazi Köprüsü = 1170",
-   "Anadolu Otoyolu (Çamlıca–Akıncı) [Anadolu (Çamlıca) → Liman] = 49",
+   "Anadolu Otoyolu (Çamlıca–Akıncı) [Anadolu (Çamlıca) → Muallimköy] = 49",
    "İstanbul–İzmir Otoyolu (Gebze–Bursa kesimi) [Osmangazi Köprüsü → Bursa Kuzey] = 370",
    "İstanbul–İzmir Otoyolu (Bursa–İzmir kesimi) [Bursa Batı → Balıkesir Kuzey] = 490"
   ],
@@ -41,13 +41,13 @@
   "go": [
    "Osmangazi Köprüsü = 1170",
    "15 Temmuz Şehitler Köprüsü (Avrupa→Asya) = 59",
-   "Anadolu Otoyolu (Çamlıca–Akıncı) [Anadolu (Çamlıca) → Liman] = 49",
+   "Anadolu Otoyolu (Çamlıca–Akıncı) [Anadolu (Çamlıca) → Muallimköy] = 49",
    "İstanbul–İzmir Otoyolu (Gebze–Bursa kesimi) [Osmangazi Köprüsü → Bursa Kuzey] = 370",
    "İstanbul–İzmir Otoyolu (Bursa–İzmir kesimi) [Bursa Batı → İzmir] = 1355"
   ],
   "goTotal": 3003,
   "back": [
-   "Anadolu Otoyolu (Çamlıca–Akıncı) [Liman → Anadolu (Çamlıca)] = 49",
+   "Anadolu Otoyolu (Çamlıca–Akıncı) [Muallimköy → Anadolu (Çamlıca)] = 49",
    "İstanbul–İzmir Otoyolu (Gebze–Bursa kesimi) [Bursa Kuzey → Osmangazi Köprüsü] = 1540",
    "İstanbul–İzmir Otoyolu (Bursa–İzmir kesimi) [İzmir → Bursa Batı] = 1355"
   ],
@@ -58,17 +58,17 @@
   "name": "Kadıköy → Kızılay",
   "km": 433,
   "go": [
-   "Anadolu Otoyolu (Çamlıca–Akıncı) [Topağaç → Akıncı] = 237",
-   "Kuzey Çevre Otoyolu (YSS dahil) [Mecidiye → Kurnaköy] = 45",
-   "Kuzey Marmara Anadolu (Kurtköy–Akyazı) [Akmeşe → Tem Akyazı] = 225"
+   "Anadolu Otoyolu (Çamlıca–Akıncı) [Anadolu (Çamlıca) → Mecidiye] = 49",
+   "Anadolu Otoyolu (Çamlıca–Akıncı) [Hendek → Akıncı] = 237",
+   "Kuzey Marmara Anadolu (Kurtköy–Akyazı) [Kurnaköy 2 → Tem Akyazı] = 600"
   ],
-  "goTotal": 507,
+  "goTotal": 886,
   "back": [
-   "Anadolu Otoyolu (Çamlıca–Akıncı) [Akıncı → Topağaç] = 237",
-   "Kuzey Çevre Otoyolu (YSS dahil) [Kurnaköy → Mecidiye] = 45",
-   "Kuzey Marmara Anadolu (Kurtköy–Akyazı) [Tem Akyazı → Akmeşe] = 225"
+   "Anadolu Otoyolu (Çamlıca–Akıncı) [Mecidiye → Anadolu (Çamlıca)] = 49",
+   "Anadolu Otoyolu (Çamlıca–Akıncı) [Akıncı → Hendek] = 237",
+   "Kuzey Marmara Anadolu (Kurtköy–Akyazı) [Tem Akyazı → Kurnaköy 2] = 600"
   ],
-  "backTotal": 507,
+  "backTotal": 886,
   "note": ""
  },
  {
@@ -90,22 +90,28 @@
   "name": "Ankara → Niğde",
   "km": 324,
   "go": [
+   "Çukurova Otoyolu (Niğde–Mersin–Adana) [Gölcük Alın → Niğde Kuzey] = 40",
    "Ankara–Niğde Otoyolu [Ankara Alın → Niğde Alın] = 925"
   ],
-  "goTotal": 925,
+  "goTotal": 965,
   "back": [
+   "Çukurova Otoyolu (Niğde–Mersin–Adana) [Niğde Kuzey → Gölcük Alın] = 40",
    "Ankara–Niğde Otoyolu [Niğde Alın → Ankara Alın] = 925"
   ],
-  "backTotal": 925,
+  "backTotal": 965,
   "note": ""
  },
  {
   "name": "Aydın → Denizli",
   "km": 133,
-  "go": [],
-  "goTotal": 0,
-  "back": [],
-  "backTotal": 0,
+  "go": [
+   "Aydın–Denizli Otoyolu [Aydın Alın → Sarayköy] = 440"
+  ],
+  "goTotal": 440,
+  "back": [
+   "Aydın–Denizli Otoyolu [Sarayköy → Aydın Alın] = 440"
+  ],
+  "backTotal": 440,
   "note": ""
  },
  {
