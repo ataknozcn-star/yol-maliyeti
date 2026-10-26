@@ -73,6 +73,12 @@
  },
  {
   "name": "Esenyurt → Edirne",
+  "steps": [
+   "3km +2 - 1587. Sokak",
+   "6km +2 - Alkop Caddesi",
+   "11km +200 O-3 Avrupa Otoyolu",
+   "212km +2 D-535 Kıyık Caddesi"
+  ],
   "km": 215,
   "go": [
    "Avrupa Otoyolu (Mahmutbey–Edirne) [Hadımköy → Havsa] = 134",
@@ -88,6 +94,15 @@
  },
  {
   "name": "Ankara → Niğde",
+  "steps": [
+   "4km +11 D200; D750 Mevlana Bulvarı",
+   "14km +2 D750 Ankara Caddesi ",
+   "18km +4 O-20 Ankara Çevre Yolu",
+   "22km +2 - Ankara Çevre Yolu Güney Kavşağı",
+   "25km +220 O-21 Ankara-Tarsus Otoyolu",
+   "245km +28 O-21 Ankara -Tarsus Otoyolu",
+   "273km +47 O-21 Ankara-Tarsus Otoyolu"
+  ],
   "km": 324,
   "go": [
    "Çukurova Otoyolu (Niğde–Mersin–Adana) [Gölcük Alın → Niğde Kuzey] = 40",
