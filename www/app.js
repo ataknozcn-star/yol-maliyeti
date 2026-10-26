@@ -263,10 +263,16 @@ function detectTolls(R,coords,cum,totKm){
     });
     if(hits.length<2)continue;
     hits.sort((x,y)=>x.km-y.km);
-    const first=hits[0].km,last=hits[hits.length-1].km;
+    /* gişeler sırayla geçilmeli: ardışık iki gişe tabloda en fazla 4 sıra uzakta olmalı, yoksa yol o otoyolda değildir */
+    const chains=[];let ch=[hits[0]];
+    for(let i=1;i<hits.length;i++){const p=hits[i-1],h=hits[i];const near=Math.abs(h.gi-p.gi)<=4||fastKm(sys.pos[h.gi][0],sys.pos[h.gi][1],sys.pos[p.gi][0],sys.pos[p.gi][1])<1;if(near)ch.push(h);else{chains.push(ch);ch=[h];}}
+    chains.push(ch);
+    const chain=chains.filter(c=>c.length>=2).sort((x,y)=>(y[y.length-1].km-y[0].km)-(x[x.length-1].km-x[0].km))[0];
+    if(!chain)continue;
+    const first=chain[0].km,last=chain[chain.length-1].km;
     if(last-first<2)continue;
     /* aynı yerdeki gişeler (ör. Karacabey 1-2): en düşük ücretli eşleşme */
-    const A=hits.filter(h=>h.km-first<0.5).map(h=>h.gi),B=hits.filter(h=>last-h.km<0.5).map(h=>h.gi);
+    const A=chain.filter(h=>h.km-first<0.5).map(h=>h.gi),B=chain.filter(h=>last-h.km<0.5).map(h=>h.gi);
     let best=null;
     for(const a of A)for(const b of B){if(a===b)continue;const v=sysPrice(sys,a,b,0);if(v!=null&&(!best||v<best.v))best={a,b,v};}
     if(!best)continue;
