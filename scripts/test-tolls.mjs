@@ -31,7 +31,9 @@ for (const [name, pts] of cases) {
     const T = api.detectTolls(R, coords, cum, tot);
     const fmt = l => l.map(t => `${t.label}${t.sub ? " [" + t.sub + "]" : ""} = ${Math.round(api.tollAmount(t).amt)}`);
     const sum = l => l.reduce((a, t) => a + api.tollAmount(t).amt, 0);
-    out.push({ name, km: Math.round(tot), go: fmt(T.go), goTotal: Math.round(sum(T.go)), back: fmt(T.back), backTotal: Math.round(sum(T.back)), note: T.note });
+    let pos = 0; const steps = [];
+    for (const st2 of R.legs[0].steps) { if (st2.distance > 1500) steps.push(`${Math.round(pos/1000)}km +${Math.round(st2.distance/1000)} ${st2.ref || "-"} ${st2.name || ""}`); pos += st2.distance; }
+    out.push({ name, steps: name.startsWith("Esenyurt") || name.startsWith("Ankara") ? steps : undefined, km: Math.round(tot), go: fmt(T.go), goTotal: Math.round(sum(T.go)), back: fmt(T.back), backTotal: Math.round(sum(T.back)), note: T.note });
   } catch (e) { out.push({ name, error: String(e) }); }
   await new Promise(r => setTimeout(r, 1200));
 }
